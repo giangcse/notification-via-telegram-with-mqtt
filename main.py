@@ -28,7 +28,20 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_message(client, obj, msg):
-    print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+    # print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
+    data = json.loads(msg.payload)
+    sensor = data['DHT11']
+
+    if(sensor['Temperature'] != None and sensor['Humidity'] != None):
+        if(float(sensor['Temperature']) >= 33):
+            try:
+                cursor = conn.cursor()
+                cursor.execute("SELECT * FROM sensors WHERE TasmotaName = ?", (str(msg.topic).split("/")[1]))
+
+                for i in cursor.fetchall():
+                    sendMessage("<pre>Cảnh báo</pre>\nCảm biến <b>{}</b> tại <i>{}</i> vượt ngưỡng nhiệt độ.".format(i[2], i[3]))
+            except Exception as e:
+                print(e)
 
 
 def on_publish(client, obj, mid):
@@ -41,6 +54,13 @@ def on_subscribe(client, obj, mid, granted_qos):
 
 def on_log(client, obj, level, string):
     print(string)
+
+def sendMessage(message):
+    bot = telebot.TeleBot(token)
+    try:
+        bot.send_message(chatID, message, parse_mode="HTML")
+    except Exception as e:
+        print(e)
 
 
 mqttc = mqtt.Client()
@@ -67,7 +87,6 @@ try:
     for i in cursor.fetchall():
         topic = "tele/"+str(i[1])+"/SENSOR"
         mqttc.subscribe(topic, 0)
-        print(topic)
 except Exception as e:
     print(e)
 
