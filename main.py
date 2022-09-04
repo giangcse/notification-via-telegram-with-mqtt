@@ -33,15 +33,15 @@ def on_message(client, obj, msg):
     sensor = data['DHT11']
 
     if(sensor['Temperature'] != None and sensor['Humidity'] != None):
-        if(float(sensor['Temperature']) >= 33):
-            try:
-                cursor = conn.cursor()
-                cursor.execute("SELECT * FROM sensors WHERE TasmotaName = ?", (str(msg.topic).split("/")[1]))
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM sensors WHERE TasmotaName = ?", (str(msg.topic).split("/")[1]))
 
-                for i in cursor.fetchall():
+            for i in cursor.fetchall():
+                if(float(sensor['Temperature']) >= float(i[4])):
                     sendMessage("<pre>Cảnh báo</pre>\nCảm biến <b>{}</b> tại <i>{}</i> vượt ngưỡng nhiệt độ.".format(i[2], i[3]))
-            except Exception as e:
-                print(e)
+        except Exception as e:
+            print(e)
 
 
 def on_publish(client, obj, mid):
