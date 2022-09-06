@@ -2,7 +2,7 @@
 import telebot
 import random
 import json
-import pyodbc
+import pymongo
 
 import paho.mqtt.client as mqtt
 
@@ -18,8 +18,9 @@ password = 'vnptvlg'
 token = '5619717309:AAFaKhqzJKyJabl4AbHMEbnrbCI1Bna34RM'
 chatID = -782522018
 # database information
-conn = pyodbc.connect(
-    r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:\\VNPT\\notification-via-telegram-with-mqtt\\THS.accdb;')
+myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+mydb = myclient['ths']
+mycol = mydb['sensors']
 
 # Define event callbacks
 
@@ -33,17 +34,16 @@ def on_message(client, obj, msg):
     data = json.loads(msg.payload)
     # print(data)
     try:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM sensors WHERE TasmotaName = ?", (str(msg.topic).split("/")[1]))
-        for sensor in cursor.fetchall():
+        cursor = mycol.find({"TasmotaName": (str(msg.topic).split("/")[1])})
+        for sensor in cursor:
             notify = ''
             S = data[sensor[2]]
-            STemp = float(S['Temperature'])  # Nhiệt độ từ cảm biến gởi lên
-            SHum = float(S['Humidity'])      # Độ ẩm từ cảm biến gởi lên
-            STTempMin = float(sensor[5])     # Ngưỡng nhiệt độ thấp từ DB
-            STTempMax = float(sensor[6])     # Ngưỡng nhiệt độ cao từ DB
-            STHumMin = float(sensor[7])      # Ngưỡng độ ẩm thấp từ DB
-            STHumMax = float(sensor[8])      # Ngưỡng độ ẩm cao từ DB
+            STemp = float(S['Temperature'])                 # Nhiệt độ từ cảm biến gởi lên
+            SHum = float(S['Humidity'])                     # Độ ẩm từ cảm biến gởi lên
+            STTempMin = float(sensor['MinTempThresh'])      # Ngưỡng nhiệt độ thấp từ DB
+            STTempMax = float(sensor['MaxTempThresh'])      # Ngưỡng nhiệt độ cao từ DB
+            STHumMin = float(sensor['MinHumThresh'])        # Ngưỡng độ ẩm thấp từ DB
+            STHumMax = float(sensor['MaxHumThresh'])        # Ngưỡng độ ẩm cao từ DB
 
             if(STemp >= STTempMax):
                 notify += 'nóng '
@@ -58,20 +58,7 @@ def on_message(client, obj, msg):
             sendMessage("<b>Cảnh báo</b>\nCảm biến {} tại {} đang {}hơn ngưỡng".format(sensor[3], sensor[4], notify))
     except Exception as e:
         print(e)
-    # sensor = data['DHT11']
 
-    # if(sensor['Temperature'] != None and sensor['Humidity'] != None):
-    #     try:
-    #         cursor = conn.cursor()
-    #         cursor.execute(
-    #             "SELECT * FROM sensors WHERE TasmotaName = ?", (str(msg.topic).split("/")[1]))
-
-    #         for i in cursor.fetchall():
-    #             if(float(sensor['Temperature']) >= float(i[4])):
-    #                 sendMessage(
-    #                     "<pre>Cảnh báo</pre>\nCảm biến <b>{}</b> tại <i>{}</i> vượt ngưỡng nhiệt độ.".format(i[2], i[3]))
-    #     except Exception as e:
-    #         print(e)
 
 
 def on_publish(client, obj, mid):
