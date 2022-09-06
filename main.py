@@ -7,21 +7,22 @@ import pyodbc
 import paho.mqtt.client as mqtt
 
 
-broker = '192.168.1.21'
+broker = '10.91.13.222'
 port = 1883
 # topic = "tele/tasmota_462B25/SENSOR"
 # generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 100)}'
-username = 'giang'
-password = 'giang'
+username = 'vnptvlg'
+password = 'vnptvlg'
 # bot information
-token = '5422598877:AAFL08R_G8TUVoej8jAYREkQ9uKQrg6jiqs'
-chatID = 1733638295
+token = '5619717309:AAFaKhqzJKyJabl4AbHMEbnrbCI1Bna34RM'
+chatID = -782522018
 # database information
 conn = pyodbc.connect(
-    r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=C:\\Users\\Giang Phan\\Desktop\\notification-via-telegram-with-mqtt\\Database1.accdb;')
+    r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=D:\\VNPT\\notification-via-telegram-with-mqtt\\THS.accdb;')
 
 # Define event callbacks
+
 
 def on_connect(client, userdata, flags, rc):
     print("rc: " + str(rc))
@@ -30,18 +31,47 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, obj, msg):
     # print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
     data = json.loads(msg.payload)
-    sensor = data['DHT11']
+    # print(data)
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM sensors WHERE TasmotaName = ?", (str(msg.topic).split("/")[1]))
+        for sensor in cursor.fetchall():
+            notify = ''
+            S = data[sensor[2]]
+            STemp = float(S['Temperature'])  # Nhiệt độ từ cảm biến gởi lên
+            SHum = float(S['Humidity'])      # Độ ẩm từ cảm biến gởi lên
+            STTempMin = float(sensor[5])     # Ngưỡng nhiệt độ thấp từ DB
+            STTempMax = float(sensor[6])     # Ngưỡng nhiệt độ cao từ DB
+            STHumMin = float(sensor[7])      # Ngưỡng độ ẩm thấp từ DB
+            STHumMax = float(sensor[8])      # Ngưỡng độ ẩm cao từ DB
 
-    if(sensor['Temperature'] != None and sensor['Humidity'] != None):
-        try:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM sensors WHERE TasmotaName = ?", (str(msg.topic).split("/")[1]))
+            if(STemp >= STTempMax):
+                notify += 'nóng '
+            elif (STemp <= STTempMin):
+                notify += 'lạnh '
 
-            for i in cursor.fetchall():
-                if(float(sensor['Temperature']) >= float(i[4])):
-                    sendMessage("<pre>Cảnh báo</pre>\nCảm biến <b>{}</b> tại <i>{}</i> vượt ngưỡng nhiệt độ.".format(i[2], i[3]))
-        except Exception as e:
-            print(e)
+            if (SHum >= STHumMax):
+                notify += 'ẩm '
+            elif (SHum <= STHumMin):
+                notify += 'khô '
+
+            sendMessage("<b>Cảnh báo</b>\nCảm biến {} tại {} đang {}hơn ngưỡng".format(sensor[3], sensor[4], notify))
+    except Exception as e:
+        print(e)
+    # sensor = data['DHT11']
+
+    # if(sensor['Temperature'] != None and sensor['Humidity'] != None):
+    #     try:
+    #         cursor = conn.cursor()
+    #         cursor.execute(
+    #             "SELECT * FROM sensors WHERE TasmotaName = ?", (str(msg.topic).split("/")[1]))
+
+    #         for i in cursor.fetchall():
+    #             if(float(sensor['Temperature']) >= float(i[4])):
+    #                 sendMessage(
+    #                     "<pre>Cảnh báo</pre>\nCảm biến <b>{}</b> tại <i>{}</i> vượt ngưỡng nhiệt độ.".format(i[2], i[3]))
+    #     except Exception as e:
+    #         print(e)
 
 
 def on_publish(client, obj, mid):
@@ -54,6 +84,7 @@ def on_subscribe(client, obj, mid, granted_qos):
 
 def on_log(client, obj, level, string):
     print(string)
+
 
 def sendMessage(message):
     bot = telebot.TeleBot(token)
@@ -74,15 +105,14 @@ mqttc.on_subscribe = on_subscribe
 #mqttc.on_log = on_log
 
 
-
 # Connect
 mqttc.username_pw_set(username, password)
 mqttc.connect(broker, port)
 
 # Start subscribe, with QoS level 0
-try: 
+try:
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM sensors')
+    cursor.execute('SELECT * FROM SENSORS')
 
     for i in cursor.fetchall():
         topic = "tele/"+str(i[1])+"/SENSOR"
