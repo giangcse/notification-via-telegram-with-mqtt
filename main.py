@@ -98,11 +98,9 @@ mqttc.connect(broker, port)
 
 # Start subscribe, with QoS level 0
 try:
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM SENSORS')
-
-    for i in cursor.fetchall():
-        topic = "tele/"+str(i[1])+"/SENSOR"
+    cursor = mycol.find()
+    for i in cursor:
+        topic = "tele/"+str(i['TasmotaName'])+"/SENSOR"
         mqttc.subscribe(topic, 0)
 except Exception as e:
     print(e)
