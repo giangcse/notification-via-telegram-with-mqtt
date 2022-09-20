@@ -1,0 +1,25 @@
+[{
+  "_id": {
+    "$oid": "6316eb97634c6fdbed956134"
+  },
+  "TasmotaName": "tasmota_AB3F94",
+  "SensorName": "SI7021-01",
+  "SensorUName": "Cảm biến 1",
+  "Location": "Tủ rack 1",
+  "MinTempThresh": "18.5",
+  "MaxTempThresh": "25.5",
+  "MinHumThresh": "40",
+  "MaxHumThresh": "60"
+},{
+  "_id": {
+    "$oid": "6329385459886debcd7f7349"
+  },
+  "TasmotaName": "tasmota_615088",
+  "SensorName": "SI7021-01",
+  "SensorUName": "Cảm biến 2",
+  "Location": "Tủ rack 2",
+  "MinTempThresh": "18.5",
+  "MaxTempThresh": "25.5",
+  "MinHumThresh": "40",
+  "MaxHumThresh": "60"
+}]
