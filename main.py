@@ -1,4 +1,3 @@
-# python3.6
 import telebot
 import random
 import json
@@ -16,7 +15,7 @@ username = 'vnptvlg'
 password = 'vnptvlg'
 # bot information
 token = '5619717309:AAFaKhqzJKyJabl4AbHMEbnrbCI1Bna34RM'
-chatID = -782522018
+chatID = 1733638295
 # database information
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient['ths']
@@ -30,14 +29,12 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_message(client, obj, msg):
-    # print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
     data = json.loads(msg.payload)
-    # print(data)
     try:
-        cursor = mycol.find({"TasmotaName": (str(msg.topic).split("/")[1])})
+        cursor = mycol.find({'TasmotaName': (str(msg.topic).split("/")[1])})
         for sensor in cursor:
             notify = ''
-            S = data[sensor[2]]
+            S = data['SI7021']
             STemp = float(S['Temperature'])                 # Nhiệt độ từ cảm biến gởi lên
             SHum = float(S['Humidity'])                     # Độ ẩm từ cảm biến gởi lên
             STTempMin = float(sensor['MinTempThresh'])      # Ngưỡng nhiệt độ thấp từ DB
@@ -55,7 +52,8 @@ def on_message(client, obj, msg):
             elif (SHum <= STHumMin):
                 notify += 'khô '
 
-            sendMessage("<b>Cảnh báo</b>\nCảm biến {} tại {} đang {}hơn ngưỡng".format(sensor[3], sensor[4], notify))
+            # print("<b>CẢNH BÁO</b>\n{} tại {} đang {} hơn ngưỡng!!".format(sensor['SensorUName'], sensor['Location'], notify))
+            sendMessage("<b>CẢNH BÁO</b>\n{} tại {} đang {} hơn ngưỡng!!".format(sensor['SensorUName'], sensor['Location'], notify))
     except Exception as e:
         print(e)
 
