@@ -15,7 +15,7 @@ username = 'vnptvlg'
 password = 'vnptvlg'
 # bot information
 token = '5619717309:AAFaKhqzJKyJabl4AbHMEbnrbCI1Bna34RM'
-chatID = 1733638295
+chatID = -782522018
 # database information
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
 mydb = myclient['ths']
@@ -52,8 +52,10 @@ def on_message(client, obj, msg):
             elif (SHum <= STHumMin):
                 notify += 'khô '
 
+            if(notify != ''):
+                mycol.insert_one(data)
+                sendMessage("<b>CẢNH BÁO</b>\n{} tại {} đang {} hơn ngưỡng!!".format(sensor['SensorUName'], sensor['Location'], notify))
             # print("<b>CẢNH BÁO</b>\n{} tại {} đang {} hơn ngưỡng!!".format(sensor['SensorUName'], sensor['Location'], notify))
-            sendMessage("<b>CẢNH BÁO</b>\n{} tại {} đang {} hơn ngưỡng!!".format(sensor['SensorUName'], sensor['Location'], notify))
     except Exception as e:
         print(e)
 
