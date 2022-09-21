@@ -53,7 +53,7 @@ def on_message(client, obj, msg):
                 notify += 'khô '
 
             if(notify != ''):
-                mycol.insert_one(data)
+                mydb['logs'].insert_one(data)
                 sendMessage("<b>CẢNH BÁO</b>\n{} tại {} đang {} hơn ngưỡng!!".format(sensor['SensorUName'], sensor['Location'], notify))
             # print("<b>CẢNH BÁO</b>\n{} tại {} đang {} hơn ngưỡng!!".format(sensor['SensorUName'], sensor['Location'], notify))
     except Exception as e:
