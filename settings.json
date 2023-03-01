@@ -1,0 +1,22 @@
+{
+    // Thiết lập cho cho client MQTT
+    "broker": {
+        "ip": "10.168.200.14", // IP Broker
+        "port": 1883, // Port broker, mặc định là 1883
+        "username": "", // Username mqtt, nếu allow anonymous thì bỏ trống
+        "password": "" // Password mqtt, nếu allow anonymous thì bỏ trống
+    },
+    // Thiết lập cho chatbot
+    "telegram": {
+        "token": "6132409968:AAE8S5b2gz73fnzg9PZaaYy4Z5QQcWT7ccs", // Token chatbot telegram cho BotFather cung cấp
+        "chat_id": "5887131694" // ID cuộc trò chuyện telegram
+    },
+    // Thiết lập ngưỡng cho cảm biến
+    "sensor": {
+        "tasmota_name": "", // Tên thiết bị
+        "temp_max": 33, // Nhiệt độ tối đa
+        "temp_min": 25, // Nhiệt độ tối thiểu
+        "hum_max": 80, // Độ ẩm tối đa
+        "hum_min": 50 // Độ ẩm tối thiểu
+    }
+}

@@ -1,29 +1,26 @@
 import telebot
 import random
 import json
-import pymongo
 
 import paho.mqtt.client as mqtt
 
 
-broker = '10.91.13.222'
-port = 1883
+# Read configurations
+with open("settings.json", "r", encoding="utf8") as f:
+    settings = json.loads(f)
+
+broker = settings['broker']['ip']
+port = settings['broker']['port']
 # topic = "tele/tasmota_462B25/SENSOR"
 # generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 100)}'
-username = 'vnptvlg'
-password = 'vnptvlg'
+username = settings['broker']['username']
+password = settings['broker']['password']
 # bot information
-token = ''
-chatID = -782522018
-# database information
-myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-mydb = myclient['ths']
-mycol = mydb['sensors']
+token = settings['telegram']['token']
+chatID = settings['telegram']['chat_id']
 
 # Define event callbacks
-
-
 def on_connect(client, userdata, flags, rc):
     print("rc: " + str(rc))
 
