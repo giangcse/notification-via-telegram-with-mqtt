@@ -14,7 +14,7 @@ client_id = f'python-mqtt-{random.randint(0, 100)}'
 username = 'vnptvlg'
 password = 'vnptvlg'
 # bot information
-token = '5619717309:AAFaKhqzJKyJabl4AbHMEbnrbCI1Bna34RM'
+token = ''
 chatID = -782522018
 # database information
 myclient = pymongo.MongoClient("mongodb://localhost:27017/")
